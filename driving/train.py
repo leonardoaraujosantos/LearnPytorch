@@ -1,5 +1,5 @@
 import torch
-from torch.autograd import Variable
+from torch.optim import lr_scheduler
 import torch.nn as nn
 import torchvision.transforms as transforms
 from drive_dataset import DriveData
@@ -53,6 +53,8 @@ train_loader = DataLoader(dset_train,
 # Loss and Optimizer
 loss_func = nn.MSELoss()
 optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate, weight_decay=L2NormConst)
+# Decay LR by a factor of 0.1 every 7 epochs
+exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
 
 print('Train size:',len(dset_train), 'Batch size:', batch_size)
 print('Batches per epoch:',len(dset_train) // batch_size)
@@ -78,6 +80,9 @@ for epoch in range(num_epochs):
 
         # Display on each epoch
         if batch_idx == 0:
+            # Send image to tensorboard
+            writer.add_image('Image', images[batch_idx], epoch)
+            # Print Epoch and loss
             print('Epoch [%d/%d] Loss: %.4f' % (epoch + 1, num_epochs, loss.item()))
             # Save the Trained Model parameters
             torch.save(cnn.state_dict(), 'cnn_' + str(epoch) + '.pkl')
