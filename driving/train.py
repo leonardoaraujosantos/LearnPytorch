@@ -55,7 +55,7 @@ loss_func = nn.MSELoss()
 #optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate, weight_decay=L2NormConst)
 optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate)
 # Decay LR by a factor of 0.1 every 10 epochs
-exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
+exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=15, gamma=0.1)
 
 print('Train size:',len(dset_train), 'Batch size:', batch_size)
 print('Batches per epoch:',len(dset_train) // batch_size)
@@ -82,7 +82,7 @@ for epoch in range(num_epochs):
         writer.add_scalar('loss/', loss.item(), iteration_count)
         writer.add_histogram('steering_out', outputs, iteration_count)
 
-        # Get current learning rate
+        # Get current learning rate (To display on Tensorboard)
         for param_group in optimizer.param_groups:
             curr_learning_rate = param_group['lr']
             writer.add_scalar('learning_rate/', curr_learning_rate, iteration_count)

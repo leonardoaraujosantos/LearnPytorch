@@ -73,8 +73,10 @@ def game_pilot(ip, port, model_path, gpu, crop_start=126, crop_end=226):
     cnn.eval()
     cnn = cnn.cuda()
 
+    #transformations = transforms.Compose([
+        #transforms.ToTensor(), transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])
     transformations = transforms.Compose([
-        transforms.ToTensor(), transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])
+        transforms.ToTensor()])
 
     print(ip)
     print(port)

@@ -73,19 +73,19 @@ class CNNDriver(nn.Module):
 
     def forward(self, x):
         # The expected image size is 66x200
-        layer1 = self.layer1.forward(x)
-        layer2 = self.layer2.forward(layer1)
-        layer3 = self.layer3.forward(layer2)
-        layer4 = self.layer4.forward(layer3)
-        layer5 = self.layer5.forward(layer4)
+        layer1 = self.layer1(x)
+        layer2 = self.layer2(layer1)
+        layer3 = self.layer3(layer2)
+        layer4 = self.layer4(layer3)
+        layer5 = self.layer5(layer4)
 
         # Reshape layer5 activation to a vector
         layer5_reshape = layer5.view(layer5.size(0), -1)
 
-        fc1 = self.fc1.forward(layer5_reshape)
-        fc2 = self.fc2.forward(fc1)
-        fc3 = self.fc3.forward(fc2)
-        fc4 = self.fc4.forward(fc3)
+        fc1 = self.fc1(layer5_reshape)
+        fc2 = self.fc2(fc1)
+        fc3 = self.fc3(fc2)
+        fc4 = self.fc4(fc3)
 
         #fc_out = self.forward(fc4)
         fc_out = self.fc_out(fc4)
