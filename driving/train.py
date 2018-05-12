@@ -17,8 +17,8 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 # Hyper Parameters
 num_epochs = 100
-batch_size = 4000
-learning_rate = 0.01
+batch_size = 400
+learning_rate = 0.001
 L2NormConst = 0.001
 
 # Tensorboard writer at logs directory
@@ -31,7 +31,7 @@ writer.add_graph(cnn, torch.rand(10,3,66,200))
 cnn = cnn.to(device)
 
 transformations = transforms.Compose([
-    transforms.ToTensor(), transforms.Normalize(mean = [ 0.5, 0.5, 0.5 ],std = [ 0.5, 0.5, 0.5 ])])
+    transforms.ToTensor()])
 
 # Instantiate a dataset
 dset_train = DriveData('./Track1_Wheel_Cam/', transformations)
@@ -52,8 +52,9 @@ train_loader = DataLoader(dset_train,
 
 # Loss and Optimizer
 loss_func = nn.MSELoss()
-optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate, weight_decay=L2NormConst)
-# Decay LR by a factor of 0.1 every 7 epochs
+#optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate, weight_decay=L2NormConst)
+optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate)
+# Decay LR by a factor of 0.1 every 10 epochs
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
 
 print('Train size:',len(dset_train), 'Batch size:', batch_size)
@@ -81,7 +82,7 @@ for epoch in range(num_epochs):
         # Display on each epoch
         if batch_idx == 0:
             # Send image to tensorboard
-            writer.add_image('Image', images[batch_idx], epoch)
+            writer.add_image('Image', images[batch_idx] * 255.0, epoch)
             # Print Epoch and loss
             print('Epoch [%d/%d] Loss: %.4f' % (epoch + 1, num_epochs, loss.item()))
             # Save the Trained Model parameters
