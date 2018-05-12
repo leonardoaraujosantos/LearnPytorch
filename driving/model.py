@@ -58,7 +58,11 @@ class CNNDriver(nn.Module):
             nn.Dropout(p=0.8)
         )
 
-        self.fc_out = nn.Linear(10, 1)
+        self.fc_out = nn.Sequential(
+            nn.Linear(10, 1),
+            nn.Tanh()
+        )
+        #self.fc_out = nn.Linear(10,1)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -83,5 +87,6 @@ class CNNDriver(nn.Module):
         fc3 = self.fc3.forward(fc2)
         fc4 = self.fc4.forward(fc3)
 
+        #fc_out = self.forward(fc4)
         fc_out = self.fc_out(fc4)
         return fc_out
