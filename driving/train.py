@@ -3,6 +3,8 @@ from torch.optim import lr_scheduler
 import torch.nn as nn
 import torchvision.transforms as transforms
 from drive_dataset import DriveData
+from drive_dataset import AugmentDrivingTransform
+from drive_dataset import DrivingDataToTensor
 from torch.utils.data import DataLoader
 from model import CNNDriver
 
@@ -26,12 +28,12 @@ writer = SummaryWriter('logs')
 cnn = CNNDriver()
 cnn.train()
 print(cnn)
-writer.add_graph(cnn, torch.rand(10,3,66,200))
+writer.add_graph(cnn, torch.rand(10, 3, 66, 200))
 # Put model on GPU
 cnn = cnn.to(device)
 
 transformations = transforms.Compose([
-    transforms.ToTensor()])
+    AugmentDrivingTransform(), DrivingDataToTensor()])
 
 # Instantiate a dataset
 dset_train = DriveData('./Track1_Wheel_Cam/', transformations)
@@ -62,10 +64,11 @@ print('Batches per epoch:',len(dset_train) // batch_size)
 # Train the Model
 iteration_count = 0
 for epoch in range(num_epochs):
-    for batch_idx, (images, labels) in enumerate(train_loader):
+    for batch_idx, samples in enumerate(train_loader):
+
         # Send inputs/labels to GPU
-        images = images.to(device)
-        labels = labels.to(device)
+        images = samples['image'].to(device)
+        labels = samples['label'].to(device)
         writer.add_histogram('steering_in', labels, iteration_count)
 
         optimizer.zero_grad()
@@ -90,7 +93,8 @@ for epoch in range(num_epochs):
         # Display on each epoch
         if batch_idx == 0:
             # Send image to tensorboard
-            writer.add_image('Image', images[batch_idx] * 255.0, epoch)
+            writer.add_image('Image', images[batch_idx], epoch)
+            writer.add_text('Steering', 'Steering:' + str(outputs[batch_idx].item()), epoch)
             # Print Epoch and loss
             print('Epoch [%d/%d] Loss: %.4f' % (epoch + 1, num_epochs, loss.item()))
             # Save the Trained Model parameters
