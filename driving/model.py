@@ -59,8 +59,8 @@ class CNNDriver(nn.Module):
         )
 
         self.fc_out = nn.Sequential(
-            nn.Linear(10, 1),
-            nn.Tanh()
+            nn.Linear(10, 1)#,
+            #nn.Tanh()
         )
         #self.fc_out = nn.Linear(10,1)
 
@@ -68,7 +68,7 @@ class CNNDriver(nn.Module):
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
             elif isinstance(m, nn.BatchNorm2d):
-                nn.init.constant_(m.weight, 1)
+                nn.init.normal(m.weight, mean=1, std=0.02)
                 nn.init.constant_(m.bias, 0)
 
     def forward(self, x):

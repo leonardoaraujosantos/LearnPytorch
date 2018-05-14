@@ -3,6 +3,7 @@ from torch.optim import lr_scheduler
 import torch.nn as nn
 import torchvision.transforms as transforms
 from drive_dataset import DriveData
+from drive_dataset import DriveData_LMDB
 from drive_dataset import AugmentDrivingTransform
 from drive_dataset import DrivingDataToTensor
 from torch.utils.data import DataLoader
@@ -20,7 +21,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # Hyper Parameters
 num_epochs = 100
 batch_size = 400
-learning_rate = 0.001
+learning_rate = 0.0001
 L2NormConst = 0.001
 
 # Tensorboard writer at logs directory
@@ -36,7 +37,8 @@ transformations = transforms.Compose([
     AugmentDrivingTransform(), DrivingDataToTensor()])
 
 # Instantiate a dataset
-dset_train = DriveData('./Track1_Wheel_Cam/', transformations)
+#dset_train = DriveData('./Track1_Wheel_Cam/', transformations)
+dset_train = DriveData_LMDB('/home/leoara01/work/DLMatFramework/virtual/tensorDriver/Track_Joystick_MultiCam_LMDB_Balanced/', transformations)
 dset_train.addFolder('./Track2_Wheel_Cam/')
 dset_train.addFolder('./Track3_Wheel_Cam/')
 dset_train.addFolder('./Track4_Wheel_Cam/')
@@ -54,8 +56,8 @@ train_loader = DataLoader(dset_train,
 
 # Loss and Optimizer
 loss_func = nn.MSELoss()
-#optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate, weight_decay=L2NormConst)
-optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate)
+optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate, weight_decay=L2NormConst)
+#optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate)
 # Decay LR by a factor of 0.1 every 10 epochs
 exp_lr_scheduler = lr_scheduler.StepLR(optimizer, step_size=15, gamma=0.1)
 
@@ -69,7 +71,6 @@ for epoch in range(num_epochs):
         # Send inputs/labels to GPU
         images = samples['image'].to(device)
         labels = samples['label'].to(device)
-        writer.add_histogram('steering_in', labels, iteration_count)
 
         optimizer.zero_grad()
 
@@ -83,7 +84,8 @@ for epoch in range(num_epochs):
 
         # Send loss to tensorboard
         writer.add_scalar('loss/', loss.item(), iteration_count)
-        writer.add_histogram('steering_out', outputs, iteration_count)
+        writer.add_histogram('steering_out', outputs.clone().detach().cpu().numpy(), iteration_count)
+        writer.add_histogram('steering_in', labels.unsqueeze(dim=1).clone().detach().cpu().numpy(), iteration_count)
 
         # Get current learning rate (To display on Tensorboard)
         for param_group in optimizer.param_groups:

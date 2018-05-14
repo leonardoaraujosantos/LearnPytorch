@@ -3,6 +3,7 @@ import torch
 from torch.utils.data.dataset import Dataset
 from PIL import Image
 import scipy.misc
+import lmdb
 
 import random
 from random import randint
@@ -71,6 +72,57 @@ class DriveData(Dataset):
         label = self.__ys[index]
         #label = np.float32(-1.0)
         #label = torch.from_numpy(np.asarray(label).reshape([1, 1]))
+
+        # Do Transformations on the image/label
+        sample = {'image': img, 'label': label}
+        if self.transform is not None:
+            sample = self.transform(sample)
+
+        return sample
+
+    # Override to give PyTorch size of dataset
+    def __len__(self):
+        return len(self.__xs)
+
+
+class DriveData_LMDB(Dataset):
+    __xs = []
+    __ys = []
+    __env = []
+
+    def __init__(self, folder_dataset, transform=None):
+        self.transform = transform
+        # Load LMDB file
+        print('Load LMDB:', folder_dataset)
+        self.__env = lmdb.open(folder_dataset, readonly=True)
+
+        # Open and load LMDB file including the whole training data (And load to memory)
+        with self.__env.begin() as txn:
+            cursor = txn.cursor()
+            for key, value in cursor:
+                key_str = key.decode('ascii')
+                # print(key_str)
+                if 'label' in key_str:
+                    self.__ys.append(np.float32(np.asscalar(np.frombuffer(value, dtype=np.float32, count=1))))
+                else:
+                    # Get shape information from key name
+                    info_key = key_str.split('_')
+                    # Get image shape [2:None] means from index 2 to the end
+                    shape_img = tuple(map(lambda x: int(x), info_key[2:None]))
+                    # Convert to float32
+                    self.__xs.append(np.frombuffer(value, dtype=np.uint8).reshape(shape_img))
+
+    def addFolder(self, folder_dataset):
+        print('Not supported now for LMDB')
+        pass
+
+    # Override to give PyTorch access to any image on the dataset
+    def __getitem__(self, index):
+        img = self.__xs[index]
+        img = (scipy.misc.imresize(img[126:226], [66, 200]) / 255.0).astype('float32')
+
+        # Convert label to torch tensors
+        label = self.__ys[index]
 
         # Do Transformations on the image/label
         sample = {'image': img, 'label': label}

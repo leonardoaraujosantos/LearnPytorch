@@ -4,7 +4,8 @@
 Created on Wed Apr 26 15:06:12 2017
 @author: leoara01
 Examples:
-drive_on_game.py --ip=10.45.65.58
+python3 drive_on_game.py --ip=10.45.64.32 --model=./cnn_14.pkl
+
 References:
 https://discuss.pytorch.org/t/how-to-cast-a-tensor-to-another-type/2713/4
 https://github.com/pytorch/examples/issues/134
@@ -47,9 +48,9 @@ class GameRecord:
 # Reference:
 # https://www.youtube.com/watch?v=cdblJqEUDNo
 parser = argparse.ArgumentParser(description='Drive inside game')
-parser.add_argument('--ip', type=str, required=False, default='127.0.0.1', help='Server IP address')
+parser.add_argument('--ip', type=str, required=False, default='10.45.64.32', help='Server IP address')
 parser.add_argument('--port', type=int, required=False, default=50007, help='Server TCP/IP port')
-parser.add_argument('--model', type=str, required=False, default='cnn_0.pkl', help='Trained driver model')
+parser.add_argument('--model', type=str, required=False, default='cnn_14.pkl', help='Trained driver model')
 parser.add_argument('--gpu', type=int, required=False, default=0, help='GPU number (-1) for CPU')
 parser.add_argument('--top_crop', type=int, required=False, default=126, help='Top crop to avoid horizon')
 parser.add_argument('--bottom_crop', type=int, required=False, default=226, help='Bottom crop to avoid front of car')
