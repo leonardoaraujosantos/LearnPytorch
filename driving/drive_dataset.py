@@ -12,13 +12,17 @@ from random import shuffle
 # Transform that augment the driving angles
 class AugmentDrivingTransform(object):
     def __call__(self, sample):
-        # Roll the dice
-        prob = random.random()
-        # Half chance of nothing half do some augmentation
-        if prob > 0.5:
-            # Flip image and steering angle
-            sample['image'] = np.fliplr(sample['image'])
-            sample['label'] = -sample['label']
+        image = sample['image']
+        steering = sample['label']
+        # Only augment steering that is not zero
+        if steering != 0:
+            # Roll the dice
+            prob = random.random()
+            # Half chance of nothing half do some augmentation
+            if prob > 0.5:
+                # Flip image and steering angle
+                sample['image'] = image
+                sample['label'] = -steering
 
         return sample
 
