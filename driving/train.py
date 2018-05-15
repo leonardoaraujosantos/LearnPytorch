@@ -1,3 +1,5 @@
+# References
+# https://github.com/hminle/car-behavioral-cloning-with-pytorch
 import torch
 from torch.optim import lr_scheduler
 import torch.nn as nn
@@ -21,7 +23,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # Hyper Parameters
 num_epochs = 100
 batch_size = 400
-learning_rate = 0.0001
+learning_rate = 0.001
 L2NormConst = 0.001
 
 # Tensorboard writer at logs directory
@@ -33,8 +35,8 @@ writer.add_graph(cnn, torch.rand(10, 3, 66, 200))
 # Put model on GPU
 cnn = cnn.to(device)
 
-transformations = transforms.Compose([
-    AugmentDrivingTransform(), DrivingDataToTensor()])
+#transformations = transforms.Compose([AugmentDrivingTransform(), DrivingDataToTensor()])
+transformations = transforms.Compose([DrivingDataToTensor()])
 
 # Instantiate a dataset
 #dset_train = DriveData('./Track1_Wheel_Cam/', transformations)
@@ -49,13 +51,13 @@ dset_train.addFolder('./Track7_Wheel_Cam/')
 train_loader = DataLoader(dset_train,
                           batch_size=batch_size,
                           shuffle=True,
-                          num_workers=1, # 1 for CUDA
-                          pin_memory=True # CUDA only
+                          num_workers=4
                          )
 
 
 # Loss and Optimizer
-loss_func = nn.MSELoss()
+#loss_func = nn.MSELoss(reduce=False)
+loss_func = nn.SmoothL1Loss()
 optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate, weight_decay=L2NormConst)
 #optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate)
 # Decay LR by a factor of 0.1 every 10 epochs

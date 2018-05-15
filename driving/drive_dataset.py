@@ -1,3 +1,7 @@
+# References
+# https://github.com/hminle/car-behavioral-cloning-with-pytorch/blob/master/utils.py
+# https://github.com/hminle/car-behavioral-cloning-with-pytorch/blob/master/experiment.ipynb
+
 import numpy as np
 import torch
 from torch.utils.data.dataset import Dataset
