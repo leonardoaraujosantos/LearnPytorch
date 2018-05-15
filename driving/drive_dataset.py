@@ -26,7 +26,7 @@ class AugmentDrivingTransform(object):
             # Half chance of nothing half do some augmentation
             if prob > 0.5:
                 # Flip image and steering angle
-                sample['image'] = image
+                sample['image'] = np.fliplr(sample['image'])
                 sample['label'] = -steering
 
         return sample

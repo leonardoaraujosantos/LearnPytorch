@@ -6,29 +6,38 @@ class CNNDriver(nn.Module):
         super(CNNDriver, self).__init__()
 
         self.conv_layers = nn.Sequential(
-            nn.Conv2d(3, 12, kernel_size=5, padding=0, stride=2),
-            nn.BatchNorm2d(12),
-            nn.ReLU(),
-            nn.Conv2d(12, 18, kernel_size=5, padding=0, stride=2),
-            nn.BatchNorm2d(18),
-            nn.ReLU(),
-            nn.Conv2d(18, 24, kernel_size=5, padding=0, stride=2),
+            nn.Conv2d(3, 24, kernel_size=5, padding=0, stride=2),
             nn.BatchNorm2d(24),
             nn.ReLU(),
-            nn.Conv2d(24, 32, kernel_size=3, padding=0, stride=1),
-            nn.BatchNorm2d(32),
+            nn.Conv2d(24, 36, kernel_size=5, padding=0, stride=2),
+            nn.BatchNorm2d(36),
             nn.ReLU(),
-            nn.Conv2d(32, 32, kernel_size=3, padding=0, stride=1),
-            nn.BatchNorm2d(32),
+            nn.Conv2d(36, 48, kernel_size=5, padding=0, stride=2),
+            nn.BatchNorm2d(48),
+            nn.ReLU(),
+            nn.Conv2d(48, 64, kernel_size=3, padding=0, stride=1),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, kernel_size=3, padding=0, stride=1),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
         )
 
         self.fc_layers = nn.Sequential(
-            nn.Linear(576, 50),
+            nn.Linear(1152, 1164),
             nn.ReLU(),
             nn.Dropout(p=0.5),
-            nn.Linear(50, 1),
-            # nn.Tanh()
+            nn.Linear(1164, 100),
+            nn.ReLU(),
+            nn.Dropout(p=0.5),
+            nn.Linear(100, 50),
+            nn.ReLU(),
+            nn.Dropout(p=0.5),
+            nn.Linear(50, 10),
+            nn.ReLU(),
+            nn.Dropout(p=0.5),
+            nn.Linear(10, 1),
+            nn.Tanh()
         )
         #self.fc_out = nn.Linear(10,1)
 

@@ -34,8 +34,8 @@ writer.add_graph(cnn, torch.rand(10, 3, 66, 200))
 # Put model on GPU
 cnn = cnn.to(device)
 
-#transformations = transforms.Compose([AugmentDrivingTransform(), DrivingDataToTensor()])
-transformations = transforms.Compose([DrivingDataToTensor()])
+transformations = transforms.Compose([AugmentDrivingTransform(), DrivingDataToTensor()])
+#transformations = transforms.Compose([DrivingDataToTensor()])
 
 # Instantiate a dataset
 #dset_train = DriveData('./Track1_Wheel_Cam/', transformations)
