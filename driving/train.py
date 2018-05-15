@@ -38,7 +38,7 @@ transformations = transforms.Compose([
 
 # Instantiate a dataset
 #dset_train = DriveData('./Track1_Wheel_Cam/', transformations)
-dset_train = DriveData_LMDB('/home/leoara01/work/DLMatFramework/virtual/tensorDriver/Track_Joystick_MultiCam_LMDB_Balanced/', transformations)
+dset_train = DriveData_LMDB('./DataLMDB', transformations)
 dset_train.addFolder('./Track2_Wheel_Cam/')
 dset_train.addFolder('./Track3_Wheel_Cam/')
 dset_train.addFolder('./Track4_Wheel_Cam/')
@@ -84,8 +84,8 @@ for epoch in range(num_epochs):
 
         # Send loss to tensorboard
         writer.add_scalar('loss/', loss.item(), iteration_count)
-        writer.add_histogram('steering_out', outputs.clone().detach().cpu().numpy(), iteration_count)
-        writer.add_histogram('steering_in', labels.unsqueeze(dim=1).clone().detach().cpu().numpy(), iteration_count)
+        writer.add_histogram('steering_out', outputs.clone().detach().cpu().numpy(), iteration_count, bins='doane')
+        writer.add_histogram('steering_in', labels.unsqueeze(dim=1).clone().detach().cpu().numpy(), iteration_count, bins='doane')
 
         # Get current learning rate (To display on Tensorboard)
         for param_group in optimizer.param_groups:
@@ -95,7 +95,7 @@ for epoch in range(num_epochs):
         # Display on each epoch
         if batch_idx == 0:
             # Send image to tensorboard
-            writer.add_image('Image', images[batch_idx], epoch)
+            writer.add_image('Image', images, epoch)
             writer.add_text('Steering', 'Steering:' + str(outputs[batch_idx].item()), epoch)
             # Print Epoch and loss
             print('Epoch [%d/%d] Loss: %.4f' % (epoch + 1, num_epochs, loss.item()))
