@@ -4,7 +4,6 @@ import torch
 from torch.optim import lr_scheduler
 import torch.nn as nn
 import torchvision.transforms as transforms
-from drive_dataset import DriveData
 from drive_dataset import DriveData_LMDB
 from drive_dataset import AugmentDrivingTransform
 from drive_dataset import DrivingDataToTensor
@@ -23,7 +22,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # Hyper Parameters
 num_epochs = 100
 batch_size = 400
-learning_rate = 0.001
+learning_rate = 0.0001
 L2NormConst = 0.001
 
 # Tensorboard writer at logs directory
@@ -41,12 +40,6 @@ transformations = transforms.Compose([DrivingDataToTensor()])
 # Instantiate a dataset
 #dset_train = DriveData('./Track1_Wheel_Cam/', transformations)
 dset_train = DriveData_LMDB('./DataLMDB', transformations)
-dset_train.addFolder('./Track2_Wheel_Cam/')
-dset_train.addFolder('./Track3_Wheel_Cam/')
-dset_train.addFolder('./Track4_Wheel_Cam/')
-dset_train.addFolder('./Track5_Wheel_Cam/')
-dset_train.addFolder('./Track6_Wheel_Cam/')
-dset_train.addFolder('./Track7_Wheel_Cam/')
 
 train_loader = DataLoader(dset_train,
                           batch_size=batch_size,
@@ -56,8 +49,8 @@ train_loader = DataLoader(dset_train,
 
 
 # Loss and Optimizer
-#loss_func = nn.MSELoss(reduce=False)
-loss_func = nn.SmoothL1Loss()
+loss_func = nn.MSELoss()
+#loss_func = nn.SmoothL1Loss()
 optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate, weight_decay=L2NormConst)
 #optimizer = torch.optim.Adam(cnn.parameters(), lr=learning_rate)
 # Decay LR by a factor of 0.1 every 10 epochs
