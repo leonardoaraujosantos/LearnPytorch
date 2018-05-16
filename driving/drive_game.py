@@ -50,7 +50,7 @@ class GameRecord:
 parser = argparse.ArgumentParser(description='Drive inside game')
 parser.add_argument('--ip', type=str, required=False, default='10.45.64.32', help='Server IP address')
 parser.add_argument('--port', type=int, required=False, default=50007, help='Server TCP/IP port')
-parser.add_argument('--model', type=str, required=False, default='cnn_14.pkl', help='Trained driver model')
+parser.add_argument('--model', type=str, required=False, default='C:\cnn_18.pkl', help='Trained driver model')
 parser.add_argument('--gpu', type=int, required=False, default=0, help='GPU number (-1) for CPU')
 parser.add_argument('--top_crop', type=int, required=False, default=126, help='Top crop to avoid horizon')
 parser.add_argument('--bottom_crop', type=int, required=False, default=226, help='Bottom crop to avoid front of car')
@@ -58,21 +58,20 @@ args = parser.parse_args()
 
 
 def game_pilot(ip, port, model_path, gpu, crop_start=126, crop_end=226):
-
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     # Set enviroment variable to set the GPU to use
-    if gpu != -1:
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu)
-    else:
-        print('Set GPU unavailable')
-        os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
     # Load model
     # https://stackoverflow.com/questions/42703500/best-way-to-save-a-trained-model-in-pytroch
     print("Loading model: %s" % model_path)
     cnn = CNNDriver()
-    cnn.load_state_dict(torch.load(model_path))
+    # Model file trained with gpu need to be remaped on CPU
+    if device.type == 'cpu':
+        cnn.load_state_dict(torch.load(model_path, map_location='cpu'))
+    else:
+        cnn.load_state_dict(torch.load(model_path))
     cnn.eval()
-    cnn = cnn.cuda()
+    cnn = cnn.to(device)
 
     #transformations = transforms.Compose([
         #transforms.ToTensor(), transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5])])
@@ -110,7 +109,7 @@ def game_pilot(ip, port, model_path, gpu, crop_start=126, crop_end=226):
             #torch_tensor = trfNorm(torch_tensor)
             torch_tensor = transformations(cam_img_res)
             cam_img_res = torch_tensor.unsqueeze(0)
-            cam_img_res = cam_img_res.cuda()
+            cam_img_res = cam_img_res.to(device)
 
             # Get steering angle from model
             degrees = cnn(cam_img_res)
